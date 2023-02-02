@@ -1,3 +1,6 @@
+import sys
+
+import pygame
 
 NUM_OF_THREE_BY_THREE_SQUARES=9
 
@@ -10,9 +13,41 @@ WIDTH=9
 
 EMPTY=0
 
-def main():
-    print(sudoku_solver([[9,1,7,2,5,4,0,0,0],[4,0,2,0,8,0,0,0,0],[6,5,0,0,0,3,4,0,0],[0,0,3,0,9,0,2,5,6],[5,0,0,7,0,0,3,0,9],[2,0,0,0,0,5,0,7,1],[0,2,0,5,3,0,7,6,0],[3,7,0,1,6,0,0,9,8],[0,0,0,0,0,0,0,3,0]]).solve())
 
+WHITE= (255, 255, 255)
+GRAY = (200, 200, 200)
+BLACK = (0,0,0)
+WINDOW_HEIGHT = 360
+WINDOW_WIDTH = 360
+
+def main():
+    #matrix=sudoku_solver([[9,1,7,2,5,4,0,0,0],[4,0,2,0,8,0,0,0,0],[6,5,0,0,0,3,4,0,0],[0,0,3,0,9,0,2,5,6],[5,0,0,7,0,0,3,0,9],[2,0,0,0,0,5,0,7,1],[0,2,0,5,3,0,7,6,0],[3,7,0,1,6,0,0,9,8],[0,0,0,0,0,0,0,3,0]]).solve()
+
+    global SCREEN
+    pygame.init()
+    SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+
+    SCREEN.fill(WHITE)
+    drawGrid()
+    pygame.display.update()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if running == False:
+                pygame.quit()
+def drawGrid():
+
+    blockSize = 40 #Set the size of the grid block
+    for x in range(0, WINDOW_WIDTH, blockSize):
+        for y in range(0, WINDOW_HEIGHT, blockSize):
+            rect = pygame.Rect(x, y, blockSize, blockSize)
+            pygame.draw.rect(SCREEN, GRAY, rect, 1)
+    pygame.draw.line(SCREEN, BLACK, (0, 120), (360, 120))
+    pygame.draw.line(SCREEN, BLACK, (0, 240), (360, 240))
+    pygame.draw.line(SCREEN, BLACK, (120, 0), (120, 360))
+    pygame.draw.line(SCREEN, BLACK, (240, 0), (240, 360))
 
 class sudoku_solver:
     matrix=[]
@@ -49,7 +84,7 @@ class sudoku_solver:
             self.reset_all_checked_to_unchecked()
             print(self.squares)
         print(self.count_of_nums)
-        print(self.matrix)
+        return self.matrix
 
 
     def fill_grid_with_num(self,number):

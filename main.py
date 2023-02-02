@@ -33,14 +33,19 @@ class sudoku_solver:
         self.count_how_many_times_each_number_appears()
         self.sort_count_of_nums()
         print(self.count_of_nums)
-        for n in range(9):
-            self.find_the_next_common_num(n)
-            if(self.count_of_nums[self.most_common_num]<9):
-                is_filled = True
-                while(self.is_filled==True):
-                    self.is_filled = False
-                    self.fill_grid_with_num(self.most_common_num)
+        count=0
+        while(list(self.count_of_nums.keys())[8]<9 and count<3):
+            for n in range(9):
+                self.find_the_next_common_num(n)
+                if(self.count_of_nums[self.most_common_num]<9):
+                    self.is_filled = True
+                    while(self.is_filled==True):
+                        self.is_filled = False
+                        self.reset_all_checked_to_unchecked(self.most_common_num)
 
+                        self.fill_grid_with_num(self.most_common_num)
+            self.sort_count_of_nums()
+            count+=1
         print(self.count_of_nums)
         print(self.matrix)
 
@@ -48,9 +53,11 @@ class sudoku_solver:
     def fill_grid_with_num(self,number):
         #this function will check each 3x3 square if it has this number
         #and if not then it will try to fill it
+        print("searching places for",number,"...")
         for key in range(NUM_OF_THREE_BY_THREE_SQUARES):
             if(self.squares[key][number-1]==UNCHECKED):
                 self.check_small_squares_avaliable_for_num_in_square(key,number)
+
 
     def check_small_squares_avaliable_for_num_in_square(self,square,number):
         rows=self.find_available_rows_for_number(number,square)
@@ -89,6 +96,7 @@ class sudoku_solver:
                 available_rows.append(row)
             else:
                 flag=True
+            row+=1
         return available_rows
 
     def find_available_columns_for_number(self, number, square):

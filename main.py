@@ -42,7 +42,21 @@ class sudoku_solver:
                 self.check_small_squares_avaliable_for_num_in_square(key,number)
 
     def check_small_squares_avaliable_for_num_in_square(self,square,number):
-        print("hi")
+        rows=self.find_available_rows_for_number(number,square)
+        columns=self.find_available_columns_for_number(number, square)
+
+        possible_places_to_put_number=[]
+        for row in rows:
+            for column in columns:
+                if(self.matrix[row][column]==0):
+                    possible_places_to_put_number.append([row,column])
+
+        if(len(possible_places_to_put_number)==1):
+            self.matrix[possible_places_to_put_number[0][0]][possible_places_to_put_number[0][1]]=number#putting the number in the matrix
+            self.squares[square][number-1]=FILLED
+        else:
+            self.squares[square][number-1]=CHECKED
+        
 
 
     def find_available_rows_for_number(self, number, square):
@@ -53,7 +67,6 @@ class sudoku_solver:
             for column in range(WIDTH):
                 if(self.matrix[row][column]==number):
                     flag=False
-                
             if(flag):
                 available_rows.append(row)
             else:

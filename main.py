@@ -34,18 +34,20 @@ class sudoku_solver:
         self.sort_count_of_nums()
         print(self.count_of_nums)
         count=0
-        while(list(self.count_of_nums.keys())[8]<9 and count<3):
+        while(count<5):
             for n in range(9):
                 self.find_the_next_common_num(n)
                 if(self.count_of_nums[self.most_common_num]<9):
                     self.is_filled = True
                     while(self.is_filled==True):
                         self.is_filled = False
-                        self.reset_all_checked_to_unchecked(self.most_common_num)
+                        self.reset_squares_without_number_checked_to_unchecked(self.most_common_num)
 
                         self.fill_grid_with_num(self.most_common_num)
             self.sort_count_of_nums()
             count+=1
+            self.reset_all_checked_to_unchecked()
+            print(self.squares)
         print(self.count_of_nums)
         print(self.matrix)
 
@@ -53,7 +55,6 @@ class sudoku_solver:
     def fill_grid_with_num(self,number):
         #this function will check each 3x3 square if it has this number
         #and if not then it will try to fill it
-        print("searching places for",number,"...")
         for key in range(NUM_OF_THREE_BY_THREE_SQUARES):
             if(self.squares[key][number-1]==UNCHECKED):
                 self.check_small_squares_avaliable_for_num_in_square(key,number)
@@ -77,11 +78,16 @@ class sudoku_solver:
         else:
             self.squares[square][number-1]=CHECKED
 
-    def reset_all_checked_to_unchecked(self,number):
+    def reset_squares_without_number_checked_to_unchecked(self,number):
         for square_key in range(NUM_OF_THREE_BY_THREE_SQUARES):
             if(self.squares[square_key][number-1]==CHECKED):
                 self.squares[square_key][number-1]==UNCHECKED
 
+    def reset_all_checked_to_unchecked(self):
+        for square_key in range(NUM_OF_THREE_BY_THREE_SQUARES):
+            for num in range(9):
+                if(self.squares[square_key][num]==CHECKED):
+                    self.squares[square_key][num]=UNCHECKED
 
 
     def find_available_rows_for_number(self, number, square):

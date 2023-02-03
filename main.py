@@ -13,41 +13,86 @@ WIDTH=9
 
 EMPTY=0
 
+LEFT_MOUSE_CLICK=1
 
 WHITE= (255, 255, 255)
 GRAY = (200, 200, 200)
 BLACK = (0,0,0)
-WINDOW_HEIGHT = 360
+WINDOW_HEIGHT = 380
 WINDOW_WIDTH = 360
-
+#sudoku_solver([[9,1,7,2,5,4,0,0,0],[4,0,2,0,8,0,0,0,0],[6,5,0,0,0,3,4,0,0],[0,0,3,0,9,0,2,5,6],[5,0,0,7,0,0,3,0,9],[2,0,0,0,0,5,0,7,1],[0,2,0,5,3,0,7,6,0],[3,7,0,1,6,0,0,9,8],[0,0,0,0,0,0,0,3,0]]).solve()
 def main():
-    #matrix=sudoku_solver([[9,1,7,2,5,4,0,0,0],[4,0,2,0,8,0,0,0,0],[6,5,0,0,0,3,4,0,0],[0,0,3,0,9,0,2,5,6],[5,0,0,7,0,0,3,0,9],[2,0,0,0,0,5,0,7,1],[0,2,0,5,3,0,7,6,0],[3,7,0,1,6,0,0,9,8],[0,0,0,0,0,0,0,3,0]]).solve()
+    matrix=[[0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0]]
 
-    global SCREEN
+    global SCREEN,blockSize
+    blockSize=40
     pygame.init()
     SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-
     SCREEN.fill(WHITE)
-    drawGrid()
+
+    solve_button = pygame.Rect(160, 0, 40, 20)
+    text_font = pygame.font.SysFont(None, 16)
+    text_image = text_font.render("Solve", True, BLACK, WHITE)
+    pygame.draw.rect(SCREEN, GRAY, solve_button, 1)
+    # Draw the text image
+    SCREEN.blit(text_image, (165,5))
+
+
+    drawGrid(matrix)
     pygame.display.update()
     running = True
+    pos=(0,0)
+    row=0
+    col=0
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if running == False:
                 pygame.quit()
-def drawGrid():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT_MOUSE_CLICK:
+                pos = pygame.mouse.get_pos()
+                col = pos[0] // 40
+                row = (pos[1]+20) // 40  - 1
+                if(solve_button.collidepoint(pos)):
+                    matrix=sudoku_solver(matrix).solve()
+                    for row in range(HEIGHT):
+                        for col in range(WIDTH):
+                            if(matrix[row][col]!=0):
+                                put_num_in_grid(matrix[row][col],row,col)
+                                pygame.display.flip()
+            if(event.type==pygame.KEYDOWN):
+                if(event.key>48 and event.key<58):
+                    matrix[row][col]=event.key-48
+                    put_num_in_grid(event.key-48,row,col)
+                    pygame.display.flip()
 
-    blockSize = 40 #Set the size of the grid block
-    for x in range(0, WINDOW_WIDTH, blockSize):
-        for y in range(0, WINDOW_HEIGHT, blockSize):
-            rect = pygame.Rect(x, y, blockSize, blockSize)
+
+def put_num_in_grid(number,row,col):
+    number_font = pygame.font.SysFont(None, 16)
+    number_text=str(number)
+    number_image = number_font.render(number_text, True, BLACK, WHITE)
+    row=row*blockSize+20
+    col=col*blockSize
+    # centre the image in the cell by calculating the margin-distance
+    margin_x = (blockSize - 1 - number_image.get_width()) // 2
+    margin_y = (blockSize - 1 - number_image.get_height()) // 2
+
+    # Draw the number image
+    SCREEN.blit(number_image, (col + 2 + margin_x, row + 2 + margin_y))
+
+def drawGrid(matrix):
+
+    for col in range(0, WINDOW_WIDTH, blockSize):
+        for row in range(20, WINDOW_HEIGHT, blockSize):
+            rect = pygame.Rect(col, row, blockSize, blockSize)
             pygame.draw.rect(SCREEN, GRAY, rect, 1)
-    pygame.draw.line(SCREEN, BLACK, (0, 120), (360, 120))
-    pygame.draw.line(SCREEN, BLACK, (0, 240), (360, 240))
-    pygame.draw.line(SCREEN, BLACK, (120, 0), (120, 360))
-    pygame.draw.line(SCREEN, BLACK, (240, 0), (240, 360))
+
+
+
+    pygame.draw.line(SCREEN, BLACK, (0, 140), (360, 140))
+    pygame.draw.line(SCREEN, BLACK, (0, 260), (360, 260))
+    pygame.draw.line(SCREEN, BLACK, (120, 20), (120, 380))
+    pygame.draw.line(SCREEN, BLACK, (240, 20), (240, 380))
 
 class sudoku_solver:
     matrix=[]
@@ -67,9 +112,8 @@ class sudoku_solver:
     def solve(self):
         self.count_how_many_times_each_number_appears()
         self.sort_count_of_nums()
-        print(self.count_of_nums)
         count=0
-        while(count<5):
+        while(count<15):
             for n in range(9):
                 self.find_the_next_common_num(n)
                 if(self.count_of_nums[self.most_common_num]<9):
@@ -82,8 +126,7 @@ class sudoku_solver:
             self.sort_count_of_nums()
             count+=1
             self.reset_all_checked_to_unchecked()
-            print(self.squares)
-        print(self.count_of_nums)
+
         return self.matrix
 
 

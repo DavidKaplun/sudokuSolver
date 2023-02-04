@@ -35,7 +35,7 @@ class sudoku_solver:
         self.count_how_many_times_each_number_appears()
         self.sort_count_of_nums()
         count=0
-        while(self.empty_squares_left()):
+        while(self.empty_squares_left() and count<20):
             for n in range(DIGITS):
                 self.find_the_next_common_num(n)
                 if(self.count_of_nums[self.most_common_num]<MAX_COUNT):
@@ -61,6 +61,29 @@ class sudoku_solver:
             if(self.matrix_rows[key][number-1]==UNCHECKED):
                 self.check_row(key,number)
 
+        for key in range(WIDTH):
+            if(self.matrix_columns[key][number-1]==UNCHECKED):
+                self.check_column(key,number)
+
+
+    def check_column(self,column,number):
+        possible_rows=[]
+        square=0
+        for row in range(HEIGHT):
+            if(self.matrix[row][column]==EMPTY):
+                if(self.is_num_in_row(row,number)==False):
+                    square=self.get_num_of_square(row*9+column)
+                    if(self.squares[square][number-1]!=FILLED):
+                        possible_rows.append(row)
+        if(len(possible_rows)==1):
+            self.matrix[possible_rows[0]][column] = number
+            self.matrix_rows[possible_rows[0]][number - 1] = FILLED
+            self.matrix_columns[column][number - 1] = FILLED
+            self.squares[square][number - 1] = FILLED
+            self.count_of_nums[number] += 1
+            self.is_filled = True
+        else:
+            self.matrix_columns[column][number-1]=CHECKED
     def check_row(self,row,number):
         possible_columns=[]
         square=0

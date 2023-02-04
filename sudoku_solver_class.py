@@ -35,7 +35,7 @@ class sudoku_solver:
         self.count_how_many_times_each_number_appears()
         self.sort_count_of_nums()
         count=0
-        while(count<5):
+        while(self.empty_squares_left()):
             for n in range(DIGITS):
                 self.find_the_next_common_num(n)
                 if(self.count_of_nums[self.most_common_num]<MAX_COUNT):
@@ -57,6 +57,54 @@ class sudoku_solver:
         for key in range(NUM_OF_THREE_BY_THREE_SQUARES):
             if(self.squares[key][number-1]==UNCHECKED):
                 self.check_small_squares_avaliable_for_num_in_square(key,number)
+        for key in range(HEIGHT):
+            if(self.matrix_rows[key][number-1]==UNCHECKED):
+                self.check_row(key,number)
+
+    def check_row(self,row,number):
+        possible_columns=[]
+        square=0
+        for column in range(WIDTH):
+            if(self.matrix[row][column]==EMPTY):
+                if(self.is_num_in_column(column,number)==False):
+                    square=self.get_num_of_square(row*9+column)
+                    if(self.squares[square][number-1]!=FILLED):
+                        possible_columns.append(column)
+
+        if(len(possible_columns)==1):
+            self.matrix[row][possible_columns[0]]=number
+            self.matrix_rows[row][number-1]=FILLED
+            self.matrix_columns[possible_columns[0]][number-1]=FILLED
+            self.squares[square][number-1]=FILLED
+            self.count_of_nums[number] += 1
+            self.is_filled=True
+        else:
+            self.matrix_rows[row][number-1]=CHECKED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def check_small_squares_avaliable_for_num_in_square(self,square,number):
@@ -89,6 +137,8 @@ class sudoku_solver:
                     self.squares[key][num]=UNCHECKED
                 if(self.matrix_rows[key][num]==CHECKED):
                     self.matrix_rows[key][num]=UNCHECKED
+                if(self.matrix_columns[key][num]==CHECKED):
+                    self.matrix_columns[key][num]=UNCHECKED
 
 
     def find_available_rows_for_number(self, number, square):
@@ -168,6 +218,12 @@ class sudoku_solver:
 
     def is_num_in_row(self,row,number):
         if(self.matrix_rows[row][number-1]==FILLED):
+                return True
+        return False
+
+    def empty_squares_left(self):
+        for num in range(1,DIGITS+1):
+            if(self.count_of_nums[num]<MAX_COUNT):
                 return True
         return False
 

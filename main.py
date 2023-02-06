@@ -14,16 +14,75 @@ WINDOW_HEIGHT = 480
 WINDOW_WIDTH = 360
 
 GRID_HEIGHT=380
-#sudoku_solver().solve()
+
 sudoku1=[[9,1,7,2,5,4,0,0,0],[4,0,2,0,8,0,0,0,0],[6,5,0,0,0,3,4,0,0],[0,0,3,0,9,0,2,5,6],[5,0,0,7,0,0,3,0,9],[2,0,0,0,0,5,0,7,1],[0,2,0,5,3,0,7,6,0],[3,7,0,1,6,0,0,9,8],[0,0,0,0,0,0,0,3,0]]
 sudoku2=[[0,0,9,5,8,6,0,0,0],[0,0,0,0,2,0,0,0,0],[4,0,0,0,0,0,6,8,3],[9,0,0,6,5,0,0,3,2],[0,6,0,7,0,0,0,9,8],[0,3,0,2,0,0,7,0,4],[0,0,3,0,0,0,0,0,0],[6,2,0,0,1,5,0,4,0],[0,0,0,4,0,0,0,5,0]]
 sudoku3=[[1,0,0,0,0,8,0,0,9],[8,7,0,0,0,1,3,0,0],[5,0,0,0,0,7,0,0,6],[0,0,4,5,0,0,9,0,0],[3,0,0,2,0,0,0,0,4],[0,9,8,0,0,0,0,0,0],[4,0,0,0,0,5,0,1,0],[0,0,0,0,0,0,0,0,0],[7,0,0,6,0,0,0,0,3]]
+
 def main():
-    matrix=[[0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0]]
+    matrix = [[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    global SCREEN,blockSize
+    sudokuSolver=sudoku_solver(matrix)
+    initialize_user_interface()
 
-    blockSize=40
+    running = True
+    pos=(0,0)
+    row=0
+    col=0
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT_MOUSE_CLICK:
+                pos = pygame.mouse.get_pos()
+                col = pos[0] // blockSize
+                row = (pos[1]+20) // blockSize  - 1
+                if(solve_button.collidepoint(pos)):
+                    sudokuSolver.set_matrix(matrix)
+                    solved_sudoku=sudokuSolver.solve()
+                    for row in range(HEIGHT):
+                        for col in range(WIDTH):
+                            if(solved_sudoku[row][col]!=0):
+                                put_num_in_grid(solved_sudoku[row][col],row,col)
+                                pygame.display.flip()
+
+
+                elif(load_sudoku1.collidepoint(pos)):
+                    matrix = deepcopy(sudoku1)
+                    draw_matrix(matrix)
+
+                elif (load_sudoku2.collidepoint(pos)):
+                    matrix = deepcopy(sudoku2)
+                    draw_matrix(matrix)
+
+                elif (load_sudoku3.collidepoint(pos)):
+                    matrix = deepcopy(sudoku3)
+                    draw_matrix(matrix)
+
+            if(event.type==pygame.KEYDOWN):
+                if(event.key>ZERO and event.key<NINE):
+                    matrix[row][col]=event.key-ZERO
+                    put_num_in_grid(event.key-ZERO,row,col)
+                    pygame.display.flip()
+
+
+def draw_matrix(matrix):
+    clear_grid()
+    for row in range(HEIGHT):
+        for col in range(WIDTH):
+            if (matrix[row][col] != 0):
+                put_num_in_grid(matrix[row][col], row, col)
+                pygame.display.flip()
+def initialize_user_interface():
+
+    global SCREEN, blockSize, solve_button, load_sudoku1, load_sudoku2, load_sudoku3
+
+    blockSize = 40
     pygame.init()
     text_font = pygame.font.SysFont(None, 16)
     SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -42,7 +101,7 @@ def main():
     pygame.draw.rect(SCREEN, GRAY, load_sudoku2, 1)
     pygame.draw.rect(SCREEN, GRAY, load_sudoku3, 1)
     # Draw the text image
-    SCREEN.blit(text_image, (165,5))
+    SCREEN.blit(text_image, (165, 5))
 
     text_image = text_font.render("Load Sudoku 1", True, BLACK, WHITE)
     SCREEN.blit(text_image, (15, 448))
@@ -53,11 +112,11 @@ def main():
     text_image = text_font.render("Load Sudoku 3", True, BLACK, WHITE)
     SCREEN.blit(text_image, (215, 448))
 
-    instruction_txt="Click on a square and then enter the number which you want there."
-    instruction_txt2="If you dont want to do that,  you can also load sudokus "
-    instruction_txt3="automatically by pressing the buttons below"
+    instruction_txt = "Click on a square and then enter the number which you want there."
+    instruction_txt2 = "If you dont want to do that,  you can also load sudokus "
+    instruction_txt3 = "automatically by pressing the buttons below"
 
-    instruction_image=text_font.render(instruction_txt,True, BLACK, WHITE)
+    instruction_image = text_font.render(instruction_txt, True, BLACK, WHITE)
     SCREEN.blit(instruction_image, (0, 385))
 
     instruction_image = text_font.render(instruction_txt2, True, BLACK, WHITE)
@@ -66,58 +125,14 @@ def main():
     instruction_image = text_font.render(instruction_txt3, True, BLACK, WHITE)
     SCREEN.blit(instruction_image, (0, 425))
 
-
-
     drawGrid()
     pygame.display.update()
-    running = True
-    pos=(0,0)
-    row=0
-    col=0
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT_MOUSE_CLICK:
-                pos = pygame.mouse.get_pos()
-                col = pos[0] // 40
-                row = (pos[1]+20) // 40  - 1
-                if(solve_button.collidepoint(pos)):
-                    matrix=sudoku_solver(matrix).solve()
-                    for row in range(HEIGHT):
-                        for col in range(WIDTH):
-                            if(matrix[row][col]!=0):
-                                put_num_in_grid(matrix[row][col],row,col)
-                                pygame.display.flip()
-                if(load_sudoku1.collidepoint(pos)):
-                    matrix = sudoku1
-                    for row in range(HEIGHT):
-                        for col in range(WIDTH):
-                            put_num_in_grid(matrix[row][col], row, col)
-                            pygame.display.flip()
 
-                if (load_sudoku2.collidepoint(pos)):
-                    matrix = sudoku2
-                    for row in range(HEIGHT):
-                        for col in range(WIDTH):
-                            if (matrix[row][col] != 0):
-                                put_num_in_grid(matrix[row][col], row, col)
-                                pygame.display.flip()
 
-                if (load_sudoku3.collidepoint(pos)):
-                    matrix = sudoku3
-                    for row in range(HEIGHT):
-                        for col in range(WIDTH):
-                            if (matrix[row][col] != 0):
-                                put_num_in_grid(matrix[row][col], row, col)
-                                pygame.display.flip()
-            if(event.type==pygame.KEYDOWN):
-                if(event.key>ZERO and event.key<NINE):
-                    matrix[row][col]=event.key-ZERO
-                    put_num_in_grid(event.key-ZERO,row,col)
-                    pygame.display.flip()
-
+def clear_grid():
+    for row in range(HEIGHT):
+        for column in range(WIDTH):
+            put_num_in_grid("   ", row, column)
 
 def put_num_in_grid(number,row,col):
     number_font = pygame.font.SysFont(None, 16)

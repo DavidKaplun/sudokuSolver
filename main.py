@@ -1,5 +1,5 @@
 from sudoku_solver_class import *
-
+import timeit
 import pygame
 
 ZERO=48
@@ -44,7 +44,11 @@ def main():
                 row = (pos[1]+20) // blockSize  - 1
                 if(solve_button.collidepoint(pos)):
                     sudokuSolver.set_matrix(matrix)
+                    t_0 = timeit.default_timer()
                     solved_sudoku=sudokuSolver.solve()
+                    t_1 = timeit.default_timer()
+                    elapsed_time = round((t_1 - t_0) * 10 ** 3, 3)
+                    print(f"Elapsed time: {elapsed_time} mili seconds")
                     for row in range(HEIGHT):
                         for col in range(WIDTH):
                             if(solved_sudoku[row][col]!=0):
@@ -167,5 +171,7 @@ def drawGrid():
 
 if __name__ == '__main__':
     main()
+
+
 
 
